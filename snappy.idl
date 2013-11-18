@@ -9,3 +9,8 @@ snappy_status snappy_compress([string, in] const char * input,
                               int input_length,
                               [array, out, length_is(*compressed_length)] char * compressed,
                               [ref, in, out] int * compressed_length);
+
+snappy_status snappy_uncompress([string, in] const char * input,
+                                int input_length,
+                                [array, out, length_is(*uncompressed_length)] char * uncompressed,
+                                [ref, in, out] int * uncompressed_length);

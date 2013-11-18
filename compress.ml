@@ -16,14 +16,26 @@ let file_to_string filename =
   close_in file;
   input
 
+let compress ?(limit=10000) str =
+  let input_length = String.length str in
+  match snappy_compress str input_length limit with
+  | SNAPPY_OK, compr, compr_length ->
+    BatString.init compr_length (fun i -> compr.(i))
+  | _, _, _ ->
+    failwith "Failed to compress"
+
+let decompress ?(limit=10000) str =
+  let input_length = String.length str in
+  match snappy_uncompress str input_length limit with
+  | SNAPPY_OK, uncompr, uncompr_length ->
+    BatString.init uncompr_length (fun i -> uncompr.(i))
+  | _ ->
+    failwith "Failed to uncompress"
 
 let () =
   let filename = Sys.argv.(1) in
   let contents = file_to_string filename in
-  let input_length = String.length contents in
-  match snappy_compress contents input_length 100000 with
-  | SNAPPY_OK, compr, compr_length ->
-    let compr = BatString.init compr_length (fun i -> compr.(i)) in
-    output_string stdout compr
-  | _, _, _ ->
-    failwith "Failed to compress"
+  let compressed = compress contents in
+  output_string stdout compressed;
+  let decompressed = decompress compressed in
+  output_string stdout decompressed
